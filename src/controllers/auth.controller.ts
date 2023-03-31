@@ -32,6 +32,7 @@ export const register = async (req: express.Request, res: express.Response) => {
             authentication: {
                 password: await authentication(password),
             },
+            referalLink: `${baseUrl}/register/${username}`
         });
         return res.status(201).json({ success: true, user });
 
@@ -120,6 +121,7 @@ export const referedRegistration = async (req: express.Request, res: express.Res
 
         const referrer = await getUserByUsername(referrerUsername);
         referrer.referrals.push(username);
+        referrer.save();
 
         return res.status(201).json({ success: true, user });
 
