@@ -6,6 +6,7 @@ const validator = (schema: any) => (payload: any) =>
 export const AUTH_REGISTER_BODY = Joi.object({
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
+    country: Joi.string().required(),
     fullname: Joi.string().required(),
     username: Joi.string().required(),
 });

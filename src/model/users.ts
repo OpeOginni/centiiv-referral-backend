@@ -8,6 +8,7 @@ const UserSchema = new mongoose.Schema({
         password: { type: String, required: true, select: false },
         sessionToken: { type: String, select: false },
     },
+    country: { type: String, required: true },
     referalLink: { type: String },
     referrer: { type: String },
     referrals: { type: [String], default: [] }
