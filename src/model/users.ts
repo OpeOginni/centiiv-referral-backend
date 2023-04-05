@@ -11,7 +11,8 @@ const UserSchema = new mongoose.Schema({
     country: { type: String, required: true },
     referalLink: { type: String },
     referrer: { type: String },
-    referrals: { type: [String], default: [] }
+    referrals: { type: [String], default: [] },
+    tokenReward: { type: Number }
 });
 
 export const UserModel = mongoose.model('User', UserSchema);

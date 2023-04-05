@@ -8,6 +8,10 @@ import { authentication, comparePassword } from "../helpers";
 const baseUrl = process.env.BASE_URL as string;
 const secretKey = process.env.TOKEN_SECRET as string;
 const saltRounds = parseInt(process.env.SALT_ROUNDS as string);
+const regirstrationReward = parseInt(process.env.REGISTRATION_REWARD as string);
+const rewardPerReferral = parseInt(process.env.REWARD_PER_REFERAL as string);
+
+
 
 
 export const register = async (req: express.Request, res: express.Response) => {
@@ -33,7 +37,8 @@ export const register = async (req: express.Request, res: express.Response) => {
             authentication: {
                 password: await authentication(password),
             },
-            referalLink: `${baseUrl}/register/${username}`
+            referalLink: `${baseUrl}/register/${username}`,
+            tokenReward: regirstrationReward
         });
         return res.status(201).json({ success: true, user });
 
@@ -123,6 +128,7 @@ export const referedRegistration = async (req: express.Request, res: express.Res
 
         const referrer = await getUserByUsername(referrerUsername);
         referrer.referrals.push(username);
+        referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
         referrer.save();
 
         return res.status(201).json({ success: true, user });
