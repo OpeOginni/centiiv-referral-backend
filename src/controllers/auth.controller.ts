@@ -15,7 +15,7 @@ const rewardPerReferral = parseInt(process.env.REWARD_PER_REFERAL as string);
 
 
 export const register = async (req: express.Request, res: express.Response) => {
-    const { fullname, username, email, country, password } = req.body;
+    const { fullname, username, email, password } = req.body;
     const { error, value } = await AuthValidator.validateRegister(req.body);
     if (error) {
         return res.status(400).send({
@@ -33,7 +33,6 @@ export const register = async (req: express.Request, res: express.Response) => {
             email,
             fullname,
             username,
-            country,
             authentication: {
                 password: await authentication(password),
             },
@@ -99,7 +98,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 }
 
 export const referedRegistration = async (req: express.Request, res: express.Response) => {
-    const { fullname, username, email, country, password } = req.body;
+    const { fullname, username, email, password } = req.body;
     const { referrerUsername } = req.params
     const { error, value } = await AuthValidator.validateRegister(req.body);
     if (error) {
@@ -118,7 +117,6 @@ export const referedRegistration = async (req: express.Request, res: express.Res
             email,
             fullname,
             username,
-            country,
             authentication: {
                 password: await authentication(password),
             },
