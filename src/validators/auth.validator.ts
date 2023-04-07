@@ -9,6 +9,7 @@ export const AUTH_REGISTER_BODY = Joi.object({
     // country: Joi.string().required(),
     fullname: Joi.string().required(),
     username: Joi.string().required(),
+    referrerUsername: Joi.string()
 });
 
 export const AUTH_SIGN_IN_BODY = Joi.object({

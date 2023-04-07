@@ -15,7 +15,7 @@ const rewardPerReferral = parseInt(process.env.REWARD_PER_REFERAL as string);
 
 
 export const register = async (req: express.Request, res: express.Response) => {
-    const { fullname, username, email, password } = req.body;
+    const { fullname, username, email, password, referrerUsername } = req.body;
     const { error, value } = await AuthValidator.validateRegister(req.body);
     if (error) {
         return res.status(400).send({
@@ -29,6 +29,13 @@ export const register = async (req: express.Request, res: express.Response) => {
         if (exisitingUser) {
             return res.status(400).json({ success: false, message: "Email already exist" });
         }
+
+        const referrer = await getUserByUsername(referrerUsername);
+
+        if (!referrer) {
+            return res.status(400).json({ success: false, message: "Referrer Does not exist" });
+        }
+
         const user = await createUser({
             email,
             fullname,
@@ -36,9 +43,15 @@ export const register = async (req: express.Request, res: express.Response) => {
             authentication: {
                 password: await authentication(password),
             },
+            referrer: referrerUsername,
             referalLink: `${baseUrl}/register/${username}`,
             tokenReward: regirstrationReward
         });
+
+        referrer.referrals.push(username);
+        referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
+        referrer.save();
+
         return res.status(201).json({ success: true, user });
 
     } catch (error) {
@@ -97,42 +110,42 @@ export const login = async (req: express.Request, res: express.Response) => {
     }
 }
 
-export const referedRegistration = async (req: express.Request, res: express.Response) => {
-    const { fullname, username, email, password } = req.body;
-    const { referrerUsername } = req.params
-    const { error, value } = await AuthValidator.validateRegister(req.body);
-    if (error) {
-        return res.status(400).send({
-            success: false,
-            message: error.details[0].message,
-        });
-    }
-    try {
-        const exisitingUser = await getUserByEmail(email);
+// export const referedRegistration = async (req: express.Request, res: express.Response) => {
+//     const { fullname, username, email, password } = req.body;
+//     const { referrerUsername } = req.params
+//     const { error, value } = await AuthValidator.validateRegister(req.body);
+//     if (error) {
+//         return res.status(400).send({
+//             success: false,
+//             message: error.details[0].message,
+//         });
+//     }
+//     try {
+//         const exisitingUser = await getUserByEmail(email);
 
-        if (exisitingUser) {
-            return res.status(400).json({ success: false, message: "Email already exist" });
-        }
-        const user = await createUser({
-            email,
-            fullname,
-            username,
-            authentication: {
-                password: await authentication(password),
-            },
-            referrer: referrerUsername,
-            referalLink: `${baseUrl}/register/${username}`
-        });
+//         if (exisitingUser) {
+//             return res.status(400).json({ success: false, message: "Email already exist" });
+//         }
+//         const user = await createUser({
+//             email,
+//             fullname,
+//             username,
+//             authentication: {
+//                 password: await authentication(password),
+//             },
+//             referrer: referrerUsername,
+//             referalLink: `${baseUrl}/register/${username}`
+//         });
 
-        const referrer = await getUserByUsername(referrerUsername);
-        referrer.referrals.push(username);
-        referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
-        referrer.save();
+//         const referrer = await getUserByUsername(referrerUsername);
+//         referrer.referrals.push(username);
+//         referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
+//         referrer.save();
 
-        return res.status(201).json({ success: true, user });
+//         return res.status(201).json({ success: true, user });
 
-    } catch (error) {
-        console.log(error);
-        return res.sendStatus(400);
-    }
-}
+//     } catch (error) {
+//         console.log(error);
+//         return res.sendStatus(400);
+//     }
+// }
