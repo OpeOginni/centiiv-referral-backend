@@ -43,7 +43,7 @@ export const register = async (req: express.Request, res: express.Response) => {
             authentication: {
                 password: await authentication(password),
             },
-            referrer: referrerUsername,
+            referrerUsername,
             referalLink: `${baseUrl}/register/${username}`,
             tokenReward: regirstrationReward
         });

@@ -10,7 +10,7 @@ const UserSchema = new mongoose.Schema({
     },
     // country: { type: String, required: true },
     referalLink: { type: String },
-    referrer: { type: String },
+    referrerUsername: { type: String },
     referrals: { type: [String], default: [] },
     tokenReward: { type: Number }
 });
