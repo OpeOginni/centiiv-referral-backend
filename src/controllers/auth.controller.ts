@@ -30,11 +30,18 @@ export const register = async (req: express.Request, res: express.Response) => {
             return res.status(400).json({ success: false, message: "Email already exist" });
         }
 
-        const referrer = await getUserByUsername(referrerUsername);
+        if (referrerUsername) {
+            const referrer = await getUserByUsername(referrerUsername);
+            if (!referrer) {
+                return res.status(400).json({ success: false, message: "Referrer Does not exist" });
+            }
 
-        if (!referrer) {
-            return res.status(400).json({ success: false, message: "Referrer Does not exist" });
+            referrer.referrals.push(username);
+            referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
+            referrer.save();
         }
+
+
 
         const user = await createUser({
             email,
@@ -48,9 +55,7 @@ export const register = async (req: express.Request, res: express.Response) => {
             tokenReward: regirstrationReward
         });
 
-        referrer.referrals.push(username);
-        referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
-        referrer.save();
+
 
         return res.status(201).json({ success: true, user });
 
