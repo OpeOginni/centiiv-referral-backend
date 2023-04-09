@@ -13,9 +13,24 @@ import router from "../src/router";
 
 const app = express();
 
-app.use(cors({
+const corsOpts = {
+    origin: '*',
+
+    methods: [
+        'GET',
+        'POST',
+    ],
+
+    allowedHeaders: [
+        'Content-Type',
+    ],
     credentials: true,
-}));
+
+};
+
+app.use(cors(
+    corsOpts
+));
 
 app.use(compression());
 app.use(cookieParser());
