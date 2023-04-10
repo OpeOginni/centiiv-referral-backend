@@ -39,9 +39,22 @@ export const register = async (req: express.Request, res: express.Response) => {
             referrer.referrals.push(username);
             referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
             referrer.save();
+
+            const user = await createUser({
+                email,
+                fullname,
+                username,
+                authentication: {
+                    password: await authentication(password),
+                },
+                referrerUsername,
+                referalLink: `${baseUrl}/register/${username}`,
+                tokenReward: regirstrationReward
+            });
+
+            return res.status(201).json({ success: true, user });
+
         }
-
-
 
         const user = await createUser({
             email,
@@ -50,7 +63,6 @@ export const register = async (req: express.Request, res: express.Response) => {
             authentication: {
                 password: await authentication(password),
             },
-            referrerUsername,
             referalLink: `${baseUrl}/register/${username}`,
             tokenReward: regirstrationReward
         });
