@@ -13,24 +13,18 @@ import router from "../src/router";
 
 const app = express();
 
-const corsOpts = {
-    origin: '*',
+app.use(cors);
 
-    methods: [
-        'GET',
-        'POST',
-    ],
-
-    allowedHeaders: [
-        'Content-Type',
-    ],
-    credentials: true,
-
-};
-
-app.use(cors(
-    corsOpts
-));
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, DELETE, PATCH'
+    );
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    next();
+});
 
 app.use(compression());
 app.use(cookieParser());
@@ -47,17 +41,6 @@ const MONGO_URI = process.env.MONGO_URI;
 mongoose.Promise = Promise;
 mongoose.connect(MONGO_URI);
 mongoose.connection.on('error', (error: Error) => console.log(error));
-
-app.use(function (req, res, next) {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PUT, DELETE, PATCH'
-    );
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    res.setHeader("Access-Control-Allow-Credentials", "true");
-    next();
-});
 
 app.use('/api/v1', router());
 
