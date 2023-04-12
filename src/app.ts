@@ -13,7 +13,7 @@ import router from "../src/router";
 
 const app = express();
 
-app.use(cors);
+app.use(cors());
 
 app.use(function (req, res, next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -37,10 +37,10 @@ server.listen(3000, () => {
 })
 
 const MONGO_URI = process.env.MONGO_URI;
-
 mongoose.Promise = Promise;
 mongoose.connect(MONGO_URI);
 mongoose.connection.on('error', (error: Error) => console.log(error));
+
 
 app.use('/api/v1', router());
 

@@ -54,22 +54,22 @@ export const register = async (req: express.Request, res: express.Response) => {
 
             return res.status(201).json({ success: true, user });
 
+        } else {
+            const user = await createUser({
+                email,
+                fullname,
+                username,
+                authentication: {
+                    password: await authentication(password),
+                },
+                referalLink: `${baseUrl}/register/${username}`,
+                tokenReward: regirstrationReward
+            });
+
+
+
+            return res.status(201).json({ success: true, user });
         }
-
-        const user = await createUser({
-            email,
-            fullname,
-            username,
-            authentication: {
-                password: await authentication(password),
-            },
-            referalLink: `${baseUrl}/register/${username}`,
-            tokenReward: regirstrationReward
-        });
-
-
-
-        return res.status(201).json({ success: true, user });
 
     } catch (error) {
         console.log(error);
