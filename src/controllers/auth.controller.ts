@@ -114,6 +114,15 @@ export const referedRegistration = async (req: express.Request, res: express.Res
             return res.status(400).json({ success: false, message: "Email already exist" });
         }
 
+        const referrer = await getUserByUsername(referrerUsername);
+        if (!referrer) {
+            return res.status(400).json({ success: false, message: "Referrer does not exist" });
+        }
+
+        referrer.referrals.push(username);
+        referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
+        referrer.save();
+
         const user = await createUser({
             email,
             fullname,
@@ -122,13 +131,11 @@ export const referedRegistration = async (req: express.Request, res: express.Res
                 password: await authentication(password),
             },
             referrerUsername: referrerUsername,
-            referalLink: `${baseUrl}/register/${username}`
+            referalLink: `${baseUrl}/register/${username}`,
+            tokenReward: regirstrationReward
         });
 
-        const referrer = await getUserByUsername(referrerUsername);
-        referrer.referrals.push(username);
-        referrer.tokenReward = referrer.tokenReward + rewardPerReferral;
-        referrer.save();
+
 
         return res.status(201).json({ success: true, user });
 
