@@ -86,7 +86,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         }
 
         if (!(await comparePassword(password, user.authentication.password))) {
-            return res.status(403).json({ success: true, message: "incorrect password" })
+            return res.status(400).json(failedResponse)
         }
 
         const token = jwt.sign(
