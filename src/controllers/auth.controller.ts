@@ -1,6 +1,8 @@
 import express from "express"
 import jwt from "jsonwebtoken";
 import { AuthValidator } from "../validators";
+import { sendEmailTemplate } from "../services/sendgrid";
+
 
 import { getUserByEmail, createUser, getUserByUsername } from "../model/users";
 import { authentication, comparePassword } from "../helpers";
@@ -10,11 +12,11 @@ const secretKey = process.env.TOKEN_SECRET as string;
 const saltRounds = parseInt(process.env.SALT_ROUNDS as string);
 const regirstrationReward = parseInt(process.env.REGISTRATION_REWARD as string);
 const rewardPerReferral = parseInt(process.env.REWARD_PER_REFERAL as string);
-
-
-
+const WelcomeTemplateEmail = process.env.WELCOME_TEMPLATE_ID as string;
 
 export const register = async (req: express.Request, res: express.Response) => {
+
+    const subject = "Account Created";
     const { fullname, username, email, password } = req.body;
     const { error, value } = await AuthValidator.validateRegister(req.body);
     if (error) {
@@ -39,6 +41,18 @@ export const register = async (req: express.Request, res: express.Response) => {
             referalLink: `${baseUrl}/register/${username}`,
             tokenReward: regirstrationReward
         });
+
+        const emailData = {
+            to: email,
+            subject: subject,
+            templateId: WelcomeTemplateEmail,
+            dynamic_template_data: {
+                fullname: user.fullname,
+                email: user.email,
+            },
+        };
+
+        sendEmailTemplate(emailData);
 
         return res.status(201).json({ success: true, user });
 
