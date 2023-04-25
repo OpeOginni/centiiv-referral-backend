@@ -113,6 +113,7 @@ export const login = async (req: express.Request, res: express.Response) => {
 }
 
 export const referedRegistration = async (req: express.Request, res: express.Response) => {
+    const subject = "Account Created";
     const { fullname, username, email, password, referrerUsername } = req.body;
     const { error, value } = await AuthValidator.validateRefRegistration(req.body);
     if (error) {
@@ -148,6 +149,18 @@ export const referedRegistration = async (req: express.Request, res: express.Res
             referalLink: `${baseUrl}/register/${username}`,
             tokenReward: regirstrationReward
         });
+
+        const emailData = {
+            to: email,
+            subject: subject,
+            templateId: WelcomeTemplateEmail,
+            dynamic_template_data: {
+                fullname: user.fullname,
+                email: user.email,
+            },
+        };
+
+        sendEmailTemplate(emailData);
 
 
 
