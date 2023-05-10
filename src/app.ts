@@ -9,7 +9,7 @@ import compression from 'compression';
 import cors from 'cors';
 import mongoose from 'mongoose'
 
-import centiivPay_router from "./centiivPay/router";
+import centiivPay_router from "./centiiv-Pay/router";
 
 const app = express();
 
