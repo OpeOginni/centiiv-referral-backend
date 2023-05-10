@@ -1,11 +1,11 @@
 import express from "express"
 import jwt from "jsonwebtoken";
 import { AuthValidator } from "../validators";
-import { sendEmailTemplate } from "../services/sendgrid";
+import { sendEmailTemplate } from "../../services/sendgrid";
 
 
-import { getUserByEmail, createUser, getUserByUsername } from "../model/users";
-import { authentication, comparePassword } from "../helpers";
+import { getUserByEmail, createUser, getUserByUsername } from "../../model/users";
+import { authentication, comparePassword } from "../../helpers";
 
 const baseUrl = process.env.BASE_URL as string;
 const secretKey = process.env.TOKEN_SECRET as string;

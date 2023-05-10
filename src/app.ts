@@ -9,7 +9,7 @@ import compression from 'compression';
 import cors from 'cors';
 import mongoose from 'mongoose'
 
-import router from "../src/router";
+import centiivPay_router from "./centiivPay/router";
 
 const app = express();
 
@@ -42,7 +42,10 @@ mongoose.connect(MONGO_URI);
 mongoose.connection.on('error', (error: Error) => console.log(error));
 
 
-app.use('/api/v1', router());
+app.use('/api/v1', centiivPay_router());
+
+// app.use('marketplace/api/v1', marketplace_router());
+
 
 // app.listen(3000, () => {
 //     console.log("running");
