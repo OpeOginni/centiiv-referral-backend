@@ -11,6 +11,9 @@ import mongoose from 'mongoose'
 
 import centiivPay_router from "./centiiv-Pay/router";
 
+import marketplace_router from "./centiiv-Marketplace/router";
+
+
 const app = express();
 
 app.use(cors());
@@ -44,7 +47,7 @@ mongoose.connection.on('error', (error: Error) => console.log(error));
 
 app.use('/api/v1', centiivPay_router());
 
-// app.use('marketplace/api/v1', marketplace_router());
+app.use('/api/v1/marketplace', marketplace_router());
 
 
 // app.listen(3000, () => {
