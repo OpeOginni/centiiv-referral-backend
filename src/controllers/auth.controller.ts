@@ -129,6 +129,57 @@ export const verifySignUp = async (req: express.Request, res: express.Response) 
     }
 }
 
+
+
+export const login = async (req: express.Request, res: express.Response) => {
+    const failedResponse = {
+        success: false,
+        message: "Invalid Email Address or Password",
+    };
+    const { email, password } = req.body;
+
+    try {
+
+        const { error, value } = await AuthValidator.validateLogin(req.body);
+        if (error) {
+            return res.status(400).send({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+
+        const user = await getUserByEmail(email).select('+authentication.password');
+
+        if (!user) {
+            return res.status(400).json(failedResponse)
+        }
+
+        if (!(await comparePassword(password, user.authentication.password))) {
+            return res.status(400).json(failedResponse)
+        }
+
+        const token = jwt.sign(
+            { _id: user._id, email: user.email },
+            secretKey,
+            { expiresIn: "72000000 seconds" }
+        );
+
+        user.authentication.sessionToken = token;
+
+        await user.save();
+        res.cookie("jwt", token);
+
+        return res.status(200).json({
+            success: true,
+            message: "Login Successful",
+            token: token,
+            user: user,
+        });
+    } catch (error) {
+        return res.sendStatus(400);
+    }
+}
+
 export const register = async (req: express.Request, res: express.Response) => {
 
     const subject = "Account Created";
@@ -223,55 +274,6 @@ export const register = async (req: express.Request, res: express.Response) => {
     }
 }
 
-export const login = async (req: express.Request, res: express.Response) => {
-    const failedResponse = {
-        success: false,
-        message: "Invalid Email Address or Password",
-    };
-    const { email, password } = req.body;
-
-    try {
-
-        const { error, value } = await AuthValidator.validateLogin(req.body);
-        if (error) {
-            return res.status(400).send({
-                success: false,
-                message: error.details[0].message,
-            });
-        }
-
-        const user = await getUserByEmail(email).select('+authentication.password');
-
-        if (!user) {
-            return res.status(400).json(failedResponse)
-        }
-
-        if (!(await comparePassword(password, user.authentication.password))) {
-            return res.status(400).json(failedResponse)
-        }
-
-        const token = jwt.sign(
-            { _id: user._id, email: user.email },
-            secretKey,
-            { expiresIn: "72000000 seconds" }
-        );
-
-        user.authentication.sessionToken = token;
-
-        await user.save();
-        res.cookie("jwt", token);
-
-        return res.status(200).json({
-            success: true,
-            message: "Login Successful",
-            token: token,
-            user: user,
-        });
-    } catch (error) {
-        return res.sendStatus(400);
-    }
-}
-
 export const referedRegistration = async (req: express.Request, res: express.Response) => {
     const subject = "Account Created";
     const { fullname, username, email, password, referrerUsername } = req.body;
@@ -283,14 +285,57 @@ export const referedRegistration = async (req: express.Request, res: express.Res
         });
     }
     try {
+        const userPassword = await authentication(password)
         const exisitingUser = await getUserByEmail(email);
 
         if (exisitingUser) {
             return res.status(400).json({ success: false, message: "Email already exist" });
         }
 
+        const existingVerificationLink = await getVerfiyTokenByEmail(email);
+
+        if (existingVerificationLink) {
+            try {
+                const decodedToken = jwt.verify(existingVerificationLink.token, secretKey);
+
+                return res.status(400).json({ success: true, message: "Click on link in Registration Email" });
+
+            } catch (error) {
+                if (error instanceof jwt.TokenExpiredError) {
+                    // Token has expired
+
+                    const verifyToken = jwt.sign(
+                        { fullname: fullname, username: username, email: email, password: userPassword, referrer: referrerUsername },
+                        secretKey,
+                        { expiresIn: "1800 seconds" } // 30 MINS
+                    );
+
+                    const verifyTokenObject = await updateVerifyTokenByEmail(
+                        email,
+                        {
+                            token: verifyToken,
+                        })
+                    const verifyEmailLink = `${baseUrl}/verify/${verifyTokenObject.email}/${verifyTokenObject.token}`
+
+                    // Send Verify Token too
+                    const emailData = {
+                        to: email,
+                        subject: subject,
+                        templateId: VerifyRegistrationTemplateEmail,
+                        dynamic_template_data: {
+                            email: email,
+                            verification_link: verifyEmailLink
+                        },
+                    };
+                    await sendEmailTemplate(emailData);
+
+                    return res.status(201).json({ success: true, message: "Verification Email Resent" });
+                }
+            }
+        }
+
         const verifyToken = jwt.sign(
-            { fullname: fullname, username: username, email: email, password: password, referrer: referrerUsername },
+            { fullname: fullname, username: username, email: email, password: userPassword, referrer: referrerUsername },
             secretKey,
             { expiresIn: "1800 seconds" } // 30 MINS
         );
@@ -299,11 +344,9 @@ export const referedRegistration = async (req: express.Request, res: express.Res
             email: email,
             token: verifyToken,
         })
-
         const verifyEmailLink = `${baseUrl}/verify/${verifyTokenObject.email}/${verifyTokenObject.token}`
 
         // Send Verify Token too
-
         const emailData = {
             to: email,
             subject: subject,
@@ -314,9 +357,8 @@ export const referedRegistration = async (req: express.Request, res: express.Res
             },
         };
 
+
         await sendEmailTemplate(emailData);
-
-
 
         return res.status(201).json({ success: true, message: "Email Sent" });
 
