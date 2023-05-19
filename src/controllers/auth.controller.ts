@@ -158,6 +158,13 @@ export const login = async (req: express.Request, res: express.Response) => {
             return res.status(400).json(failedResponse)
         }
 
+        if (user.restricted === true) {
+            return res.status(400).json({
+                success: false,
+                message: "Account is restricted",
+            });
+        }
+
         const token = jwt.sign(
             { _id: user._id, email: user.email },
             secretKey,

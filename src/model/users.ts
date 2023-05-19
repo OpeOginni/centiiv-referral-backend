@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema({
     referalLink: { type: String },
     referrerUsername: { type: String },
     referrals: { type: [String], default: [] },
+    restricted: { type: Boolean, default: false },
     tokenReward: { type: Number }
 });
 
