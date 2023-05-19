@@ -305,7 +305,7 @@ export const referedRegistration = async (req: express.Request, res: express.Res
             try {
                 const decodedToken = jwt.verify(existingVerificationLink.token, secretKey);
 
-                return res.status(400).json({ success: true, message: "Click on link in Registration Email" });
+                return res.status(400).json({ success: true, message: "Check Your Email for the Verification Mail" });
 
             } catch (error) {
                 if (error instanceof jwt.TokenExpiredError) {
