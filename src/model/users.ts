@@ -12,6 +12,7 @@ const UserSchema = new mongoose.Schema({
     referalLink: { type: String },
     referrerUsername: { type: String },
     referrals: { type: [String], default: [] },
+    restricted: { type: Boolean, default: false },
     tokenReward: { type: Number }
 });
 
@@ -28,3 +29,4 @@ export const createUser = (values: Record<string, any>) => new UserModel(values)
     .save().then((user) => user.toObject());
 export const deleteUserById = (id: string) => UserModel.findOneAndDelete({ _id: id });
 export const updateUserById = (id: string, values: Record<string, any>) => UserModel.findByIdAndUpdate(id, values);
+// export const deleteAllUsers = () => UserModel.deleteMany({});
