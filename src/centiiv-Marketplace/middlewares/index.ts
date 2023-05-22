@@ -47,6 +47,17 @@ export const isMerchantAuthenticated = async (req: express.Request, res: express
         }
 
         merge(req, { identiy: exisitingMerchant });
+
+        // TODO: Pass the merchant in the cookie
+        // const cookieOptions = {
+        //     expires: new Date(
+        //         Date.now() + 30 * 24 * 60 * 60 * 1000 // To make the cookie expire 90 days from when it was created
+        //     ),
+        //     // secure: true,
+        //     httpOnly: true,
+        // };
+        // res.cookie('merchant', exisitingMerchant, cookieOptions); // Creating a Cookie that keeps the jwt
+
         console.log(exisitingMerchant)
         return next();
     } catch (error) {

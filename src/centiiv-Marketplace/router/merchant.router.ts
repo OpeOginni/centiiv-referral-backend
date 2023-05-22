@@ -1,6 +1,6 @@
 import express from 'express'
 
-import { getMerchant } from '../controllers/merchants.controller'
+import { getMerchant } from '../controllers/merchant.controller'
 import { isMerchantAuthenticated, isMerchantOwner } from '../middlewares'
 
 export default (router: express.Router) => {
