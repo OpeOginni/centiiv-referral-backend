@@ -1,0 +1,16 @@
+# syntax=docker/dockerfile:1
+
+FROM node:18-alpine
+
+WORKDIR /app
+
+COPY . .
+
+# Install NPM
+RUN npm install
+
+RUN npx tsc
+
+EXPOSE 3000
+
+CMD [ "node", "dist/src/app.js" ]

@@ -1,0 +1,7 @@
+#! /bin/zsh
+
+ECR_BACKEND_NODEJS_URL="503599847656.dkr.ecr.eu-west-1.amazonaws.com/centiiv-referral-backend-nodejs"
+echo $ECR_BACKEND_NODEJS_URL
+
+docker tag centiiv-referral-backend-nodejs-prod:latest 503599847656.dkr.ecr.eu-west-1.amazonaws.com/centiiv-referral-backend-nodejs:latest
+docker push 503599847656.dkr.ecr.eu-west-1.amazonaws.com/centiiv-referral-backend-nodejs:latest

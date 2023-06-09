@@ -1,0 +1,11 @@
+#! /bin/zsh
+
+ABS_PATH=$(readlink -f "$0")
+BIN_PATH=$(dirname $ABS_PATH)
+PROJECT_PATH=$(dirname $BIN_PATH)
+echo $PROJECT_PATH
+
+docker build \
+-f "$PROJECT_PATH/Dockerfile.prod" \
+-t centiiv-referral-backend-nodejs-prod \
+"$PROJECT_PATH/."

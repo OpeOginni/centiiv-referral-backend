@@ -2,7 +2,7 @@
 require("dotenv").config();
 
 import crypto from 'crypto';
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 const saltRounds = parseInt(process.env.SALT_ROUNDS as string);
 

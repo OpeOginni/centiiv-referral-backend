@@ -119,6 +119,7 @@ export const verifySignUp = async (req: express.Request, res: express.Response) 
 
 
     } catch (error) {
+        console.log(error)
 
         if (error instanceof jwt.TokenExpiredError) {
             // JWT has expired
