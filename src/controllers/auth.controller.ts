@@ -292,6 +292,99 @@ export const referedRegistration = async (req: express.Request, res: express.Res
             message: error.details[0].message,
         });
     }
+
+    if (referrerUsername == "") {
+        const subject = "Account Created";
+        const { fullname, username, email, password } = req.body;
+        const { error, value } = await AuthValidator.validateRegister(req.body);
+        if (error) {
+            return res.status(400).send({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+        try {
+            const userPassword = await authentication(password)
+            const exisitingUser = await getUserByEmail(email);
+
+            if (exisitingUser) {
+                return res.status(400).json({ success: false, message: "Email already exist" });
+            }
+
+            const existingVerificationLink = await getVerfiyTokenByEmail(email);
+
+            if (existingVerificationLink) {
+                try {
+                    const decodedToken = jwt.verify(existingVerificationLink.token, secretKey);
+
+                    return res.status(400).json({ success: true, message: "Click on link in Registration Email" });
+
+                } catch (error) {
+                    if (error instanceof jwt.TokenExpiredError) {
+                        // Token has expired
+
+                        const verifyToken = jwt.sign(
+                            { fullname: fullname, username: username, email: email, password: userPassword, referrer: 'none' },
+                            secretKey,
+                            { expiresIn: "1800 seconds" } // 30 MINS
+                        );
+
+                        const verifyTokenObject = await updateVerifyTokenByEmail(
+                            email,
+                            {
+                                token: verifyToken,
+                            })
+                        const verifyEmailLink = `${baseUrl}/verify/${verifyTokenObject.email}/${verifyTokenObject.token}`
+
+                        // Send Verify Token too
+                        const emailData = {
+                            to: email,
+                            subject: subject,
+                            templateId: VerifyRegistrationTemplateEmail,
+                            dynamic_template_data: {
+                                email: email,
+                                verification_link: verifyEmailLink
+                            },
+                        };
+                        await sendEmailTemplate(emailData);
+
+                        return res.status(201).json({ success: true, message: "Verification Email Resent" });
+                    }
+                }
+            }
+
+            const verifyToken = jwt.sign(
+                { fullname: fullname, username: username, email: email, password: userPassword, referrer: 'none' },
+                secretKey,
+                { expiresIn: "1800 seconds" } // 30 MINS
+            );
+
+            const verifyTokenObject = await createVerifyToken({
+                email: email,
+                token: verifyToken,
+            })
+            const verifyEmailLink = `${baseUrl}/verify/${verifyTokenObject.email}/${verifyTokenObject.token}`
+
+            // Send Verify Token too
+            const emailData = {
+                to: email,
+                subject: subject,
+                templateId: VerifyRegistrationTemplateEmail,
+                dynamic_template_data: {
+                    email: email,
+                    verification_link: verifyEmailLink
+                },
+            };
+
+
+            await sendEmailTemplate(emailData);
+
+            return res.status(201).json({ success: true, message: "Email Sent" });
+
+        } catch (error) {
+            return res.sendStatus(400);
+        }
+    }
     try {
         const userPassword = await authentication(password)
         const exisitingUser = await getUserByEmail(email);

@@ -20,7 +20,7 @@
       "portMappings": [
         {
           "name": "centiiv-referral-backend-node-js",
-          "containerPort": 3000,
+          "containerPort": 3001,
           "protocol": "tcp",
           "appProtocol": "http"
         }

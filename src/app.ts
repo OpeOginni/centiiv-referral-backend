@@ -32,8 +32,8 @@ app.use(bodyParser.json());
 
 const server = http.createServer(app);
 
-server.listen(3000, () => {
-    console.log('Server running on http://localhost:3000/')
+server.listen(3001, () => {
+    console.log('Server running on http://localhost:3001/')
 })
 
 const MONGO_URI = process.env.MONGO_URI;

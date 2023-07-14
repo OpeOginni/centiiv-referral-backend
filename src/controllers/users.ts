@@ -1,9 +1,21 @@
 import express from 'express'
 
 import { getUserById } from '../model/users'
+import { UserValidator } from 'validators';
 
 export const getUser = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
+
     try {
+
+
+        const { error, value } = await UserValidator.valudateGetUser(req.params);
+        if (error) {
+            return res.status(400).send({
+                success: false,
+                message: error.details[0].message,
+            });
+        }
+
         const { id } = req.params;
 
         const user = await getUserById(id);
