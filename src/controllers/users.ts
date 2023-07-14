@@ -1,7 +1,7 @@
 import express from 'express'
 
 import { getUserById } from '../model/users'
-import { UserValidator } from 'validators';
+import { UserValidator } from '../validators';
 
 export const getUser = async (req: express.Request, res: express.Response, next: express.NextFunction) => {
 

@@ -285,18 +285,11 @@ export const register = async (req: express.Request, res: express.Response) => {
 export const referedRegistration = async (req: express.Request, res: express.Response) => {
     const subject = "Account Created";
     const { fullname, username, email, password, referrerUsername } = req.body;
-    const { error, value } = await AuthValidator.validateRefRegistration(req.body);
-    if (error) {
-        return res.status(400).send({
-            success: false,
-            message: error.details[0].message,
-        });
-    }
 
     if (referrerUsername == "") {
         const subject = "Account Created";
         const { fullname, username, email, password } = req.body;
-        const { error, value } = await AuthValidator.validateRegister(req.body);
+        const { error, value } = await AuthValidator.validateRegister({ fullname, username, email, password });
         if (error) {
             return res.status(400).send({
                 success: false,
@@ -384,6 +377,13 @@ export const referedRegistration = async (req: express.Request, res: express.Res
         } catch (error) {
             return res.sendStatus(400);
         }
+    }
+    const { error, value } = await AuthValidator.validateRefRegistration(req.body);
+    if (error) {
+        return res.status(400).send({
+            success: false,
+            message: error.details[0].message,
+        });
     }
     try {
         const userPassword = await authentication(password)
